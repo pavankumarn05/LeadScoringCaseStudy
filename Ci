@@ -179,3 +179,159 @@ lint:
 	flake8 app/
 	black
 
+
+fastapi==0.100.0
+uvicorn[standard]==0.23.0
+pytest==7.4.2
+pytest-cov==4.1.0
+flake8==6.1.0
+black==23.9.1
+requests==2.31.0
+
+
+.PHONY: install lint lint-fix test run clean docker-build docker-run docker-clean
+
+install:
+	pip install --no-cache-dir -r requirements.txt
+
+lint:
+	flake8 app/
+	black --check app/
+
+lint-fix:
+	black app/
+
+test:
+	pytest --cov=app --cov-report=xml
+
+run:
+	uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+clean:
+	rm -rf __pycache__ .pytest_cache *.pyc .coverage coverage.xml
+
+docker-build:
+	docker build -t fastapi-app -f docker/Dockerfile .
+
+docker-run:
+	docker run -d -p 8000:8000 --name fastapi-app fastapi-app
+
+docker-clean:
+	docker rm -f fastapi-app || true
+	docker rmi fastapi-app || true
+
+
+Complete Dockerfile
+
+Here’s the Dockerfile optimized for this FastAPI project:
+
+# Use the official Python slim image to reduce size
+FROM python:3.10-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy only the necessary files
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY . .
+
+# Expose port 8000 for the FastAPI app
+EXPOSE 8000
+
+# Define the command to run the app
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+---
+
+How to Use Docker Without Paying
+
+Docker itself is free to use. You can set it up on your local machine without incurring any costs. Here’s how:
+
+1. Install Docker
+
+Windows:
+
+Download Docker Desktop from Docker's official site.
+
+Install and follow the setup wizard.
+
+
+Linux:
+
+Install Docker Engine via your Linux distribution’s package manager (e.g., apt, yum).
+
+
+Mac:
+
+Download Docker Desktop from the official site and install it.
+
+
+
+2. Use Docker Hub Free Plan
+
+Docker Hub offers a free plan with limited private repositories and unlimited public repositories.
+
+You can create an account at Docker Hub to store and share your images for free.
+
+
+3. No Paid Services
+
+As long as you’re running containers locally or building images, you don’t need to pay. Costs are only incurred if you:
+
+Use cloud-based container services (e.g., AWS ECS, Azure AKS, or Docker Hub Pro).
+
+Require advanced enterprise-level features.
+
+
+
+4. Commands to Run Docker Locally
+
+Build the Docker Image:
+
+docker build -t fastapi-app .
+
+Run the Container:
+
+docker run -d -p 8000:8000 fastapi-app
+
+Test Locally:
+
+Open a browser and navigate to http://localhost:8000.
+
+
+
+5. Clean Up Docker Resources
+
+Stop and remove containers:
+
+docker stop $(docker ps -q)
+docker rm $(docker ps -aq)
+
+Remove unused images:
+
+docker rmi $(docker images -q)
+
+
+
+---
+
+Benefits of Using Docker Locally
+
+1. Free to Run Locally: No charges unless you use paid hosting or additional services.
+
+
+2. Consistent Environment: Avoids "works on my machine" issues by packaging your app and its dependencies.
+
+
+3. Testing: Perfect for testing CI/CD pipelines locally before deploying to production.
+
+
+
+Let me know if you’d like further assistance!
+
